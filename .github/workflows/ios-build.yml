@@ -1,31 +1,55 @@
 
-name: INJECT
+name: INJECT iOS Build
 
-options:
-  bundleIdPrefix: com.gdev
-  deploymentTarget:
-    iOS: "27.0"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
-settings:
-  base:
-    SWIFT_VERSION: "5.0"
-    IPHONEOS_DEPLOYMENT_TARGET: "27.0"
+jobs:
+  build:
+    name: Build INJECT
+    runs-on: macos-latest
 
-targets:
-  INJECT:
-    type: application
-    platform: iOS
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    sources:
-      - path: core/INJECTCore
-      - path: core/INJECTUI
+      - name: Select Xcode
+        run: |
+          xcodebuild -version
 
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.gdev.inject
-        PRODUCT_NAME: INJECT
-        TARGETED_DEVICE_FAMILY: "1,2"
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: INJECT
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-  
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build iOS App
+        run: |
+          xcodebuild \
+            -project INJECT.xcodeproj \
+            -scheme INJECT \
+            -sdk iphoneos \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/INJECT.app Payload/
+          zip -r INJECT-unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: INJECT-unsigned-IPA
+          path: INJECT-unsigned.ipa
+          if-no-files-found: error

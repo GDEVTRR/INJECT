@@ -25,7 +25,6 @@ final class INJECTEngine: ObservableObject {
     }
 
     func open(_ url: URL) throws {
-
         let opened = try PlistFileService.open(from: url)
 
         originalDocument = opened
@@ -33,7 +32,6 @@ final class INJECTEngine: ObservableObject {
     }
 
     func value(at path: PlistPath) throws -> Any {
-
         guard let document else {
             throw PlistValueError.invalidPropertyList
         }
@@ -45,7 +43,6 @@ final class INJECTEngine: ObservableObject {
     }
 
     func set(_ value: Any, at path: PlistPath) throws {
-
         guard let document else {
             throw PlistValueError.invalidPropertyList
         }
@@ -60,7 +57,6 @@ final class INJECTEngine: ObservableObject {
     }
 
     func remove(at path: PlistPath) throws {
-
         guard let document else {
             throw PlistValueError.invalidPropertyList
         }
@@ -74,7 +70,6 @@ final class INJECTEngine: ObservableObject {
     }
 
     func changes() throws -> [PlistChange] {
-
         guard let originalDocument,
               let document else {
             throw PlistValueError.invalidPropertyList
@@ -87,7 +82,6 @@ final class INJECTEngine: ObservableObject {
     }
 
     func save(to url: URL) throws {
-
         guard let document else {
             throw PlistValueError.invalidPropertyList
         }
@@ -107,9 +101,8 @@ final class INJECTEngine: ObservableObject {
     }
 
     func createBackup(
-        ofCurrentChanges at url: URL
+        ofCurrentChangesAt url: URL
     ) throws {
-
         guard let document else {
             throw PlistValueError.invalidPropertyList
         }
@@ -121,7 +114,6 @@ final class INJECTEngine: ObservableObject {
     }
 
     func createOriginalBackup(at url: URL) throws {
-
         guard let originalDocument else {
             throw PlistValueError.invalidPropertyList
         }
